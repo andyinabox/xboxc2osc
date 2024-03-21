@@ -23,10 +23,3 @@ func (s *ControllerState) Assign(data []byte) {
 	s.MainButton = MainButton(data[14])
 	s.SpecialButton = SpecialButton(data[15])
 }
-
-func NewControllerState() *ControllerState {
-	return &ControllerState{
-		LeftStick:  [2]uint16{},
-		RightStick: [2]uint16{},
-	}
-}

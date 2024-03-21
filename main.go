@@ -39,8 +39,8 @@ func (c *Client) Run() error {
 
 	var msg *osc.Message
 	data := make([]byte, 17)
-	state := NewControllerState()
-	prevState := NewControllerState()
+	state := &ControllerState{}
+	prevState := &ControllerState{}
 
 	log.Println("Device connected, listening...")
 	for {
@@ -156,9 +156,9 @@ func (c *Client) Run() error {
 		}
 
 		// swap pointers
-		ptr := state
-		state = prevState
-		prevState = ptr
+		ptr := prevState
+		prevState = state
+		state = ptr
 	}
 
 }
