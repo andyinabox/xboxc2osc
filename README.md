@@ -4,6 +4,8 @@
 
 ## Usage
 
+When you run this application in the terminal, it will attempt to locate an Xbox Controller connected to your system via HID. If found, input from the controller will be redirected to OSC (see below),
+
 Run `xboxc2osc -h` for available settings:
 
 ```
