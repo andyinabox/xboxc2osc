@@ -47,6 +47,10 @@ func (c *Client) Run() error {
 
 		_, err := device.Read(data)
 		if err != nil {
+			if err == hid.ErrTimeout {
+				log.Println("Device disconnected, exiting...")
+				return nil
+			}
 			return err
 		}
 
