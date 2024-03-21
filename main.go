@@ -110,49 +110,10 @@ func (c *Client) Run() error {
 			return err
 		}
 
-		dpad, found := DPadStateStrMap()[state.DPad]
-
-		if found {
-
-			var dpadx float32
-			var dpady float32
-			switch state.DPad {
-			case DPadStateN:
-				dpadx = 0.5
-				dpady = 0.0
-			case DPadStateNE:
-				dpadx = 1.0
-				dpady = 0.0
-			case DPadStateE:
-				dpadx = 1.0
-				dpady = 0.5
-			case DPadStateSE:
-				dpadx = 1.0
-				dpady = 1.0
-			case DPadStateS:
-				dpadx = 0.5
-				dpady = 1.0
-			case DPadStateSW:
-				dpadx = 0.0
-				dpady = 1.0
-			case DPadStateW:
-				dpadx = 0.0
-				dpady = 0.5
-			case DPadStateNW:
-				dpadx = 0.0
-				dpady = 0.0
-			}
-
-			msg = osc.NewMessage(c.oscPath("/dp/", dpad))
-			msg.Append(true)
-			err = oscClient.Send(msg)
-			if err != nil {
-				return err
-			}
-
-			msg = osc.NewMessage(c.oscPath("/dp"))
-			msg.Append(dpadx)
-			msg.Append(dpady)
+		// dpad buttons
+		for dpadStateType, str := range DPadStateStrMap() {
+			msg = osc.NewMessage(c.oscPath("/dp/", str))
+			msg.Append(dpadStateType == state.DPad)
 			err = oscClient.Send(msg)
 			if err != nil {
 				return err
@@ -160,7 +121,6 @@ func (c *Client) Run() error {
 		}
 
 		// main button
-
 		for mainButtonType, str := range MainButtonStrMap() {
 			msg = osc.NewMessage(c.oscPath("/btn/", str))
 			msg.Append(mainButtonType == state.MainButton)
@@ -169,37 +129,15 @@ func (c *Client) Run() error {
 				return err
 			}
 		}
-
-		// special button
-		specialButton, found := SpecialButtonStrMap()[state.SpecialButton]
-		if found {
-			msg = osc.NewMessage(c.oscPath("/btn/", specialButton))
-			msg.Append(true)
+		// special buttons
+		for specialButtonType, str := range SpecialButtonStrMap() {
+			msg = osc.NewMessage(c.oscPath("/btn/", str))
+			msg.Append(specialButtonType == state.SpecialButton)
 			err = oscClient.Send(msg)
 			if err != nil {
 				return err
 			}
-
-			// we are also doplicating these under the ls/rs path
-			// where other values for the joysticks are found
-			if state.SpecialButton == SpecialButtonLeftStick {
-				msg = osc.NewMessage(c.oscPath("/ls/btn"))
-				msg.Append(true)
-				err = oscClient.Send(msg)
-				if err != nil {
-					return err
-				}
-			}
-			if state.SpecialButton == SpecialButtonRightStick {
-				msg = osc.NewMessage(c.oscPath("/rs/btn"))
-				msg.Append(true)
-				err = oscClient.Send(msg)
-				if err != nil {
-					return err
-				}
-			}
 		}
-
 	}
 
 }
