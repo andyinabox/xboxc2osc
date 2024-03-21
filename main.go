@@ -1,7 +1,7 @@
 package xboxc2osc
 
 import (
-	"fmt"
+	"log"
 	"path"
 
 	"github.com/hypebeast/go-osc/osc"
@@ -29,7 +29,7 @@ func (c *Client) Run() error {
 
 	oscClient := osc.NewClient(c.conf.OscHostDomain, c.conf.OscHostPort)
 
-	fmt.Println("Looking for device...")
+	log.Println("Looking for device...")
 	for {
 		device, err = hid.OpenFirst(c.conf.DeviceId[0], c.conf.DeviceId[1])
 		if err == nil && device != nil {
@@ -40,7 +40,9 @@ func (c *Client) Run() error {
 	var msg *osc.Message
 	data := make([]byte, 17)
 	state := NewControllerState()
+	prevState := NewControllerState()
 
+	log.Println("Device connected, listening...")
 	for {
 
 		_, err := device.Read(data)
@@ -49,65 +51,75 @@ func (c *Client) Run() error {
 		}
 
 		state.Assign(data)
-		fmt.Printf("%+v\n", state)
 
 		// right stick
-		msg = osc.NewMessage(c.oscPath("/rs"))
-		msg.Append(uint16ToFloat32(state.RightStick[0]))
-		msg.Append(uint16ToFloat32(state.RightStick[1]))
-		err = oscClient.Send(msg)
-		if err != nil {
-			return err
-		}
+		if state.RightStick != prevState.RightStick {
+			msg = osc.NewMessage(c.oscPath("/rs"))
+			msg.Append(uint16ToFloat32(state.RightStick[0]))
+			msg.Append(uint16ToFloat32(state.RightStick[1]))
+			err = oscClient.Send(msg)
+			if err != nil {
+				return err
+			}
 
-		msg = osc.NewMessage(c.oscPath("/rs/x"))
-		msg.Append(uint16ToFloat32(state.RightStick[0]))
-		err = oscClient.Send(msg)
-		if err != nil {
-			return err
-		}
+			msg = osc.NewMessage(c.oscPath("/rs/x"))
+			msg.Append(uint16ToFloat32(state.RightStick[0]))
+			err = oscClient.Send(msg)
+			if err != nil {
+				return err
+			}
 
-		msg = osc.NewMessage(c.oscPath("/ls/y"))
-		msg.Append(uint16ToFloat32(state.RightStick[1] / 512))
-		err = oscClient.Send(msg)
-		if err != nil {
-			return err
+			msg = osc.NewMessage(c.oscPath("/rs/y"))
+			msg.Append(uint16ToFloat32(state.RightStick[1] / 512))
+			err = oscClient.Send(msg)
+			if err != nil {
+				return err
+			}
+
 		}
 
 		// left stick
-		msg = osc.NewMessage(c.oscPath("/ls"))
-		msg.Append(uint16ToFloat32(state.LeftStick[0] / 512))
-		msg.Append(uint16ToFloat32(state.LeftStick[1] / 512))
-		err = oscClient.Send(msg)
-		if err != nil {
-			return err
-		}
-		msg = osc.NewMessage(c.oscPath("/ls/x"))
-		msg.Append(uint16ToFloat32(state.LeftStick[0] / 512))
-		err = oscClient.Send(msg)
-		if err != nil {
-			return err
+		if state.LeftStick != prevState.LeftStick {
+			msg = osc.NewMessage(c.oscPath("/ls"))
+			msg.Append(uint16ToFloat32(state.LeftStick[0] / 512))
+			msg.Append(uint16ToFloat32(state.LeftStick[1] / 512))
+			err = oscClient.Send(msg)
+			if err != nil {
+				return err
+			}
+			msg = osc.NewMessage(c.oscPath("/ls/x"))
+			msg.Append(uint16ToFloat32(state.LeftStick[0] / 512))
+			err = oscClient.Send(msg)
+			if err != nil {
+				return err
+			}
+
+			msg = osc.NewMessage(c.oscPath("/ls/y"))
+			msg.Append(uint16ToFloat32(state.LeftStick[1] / 512))
+			err = oscClient.Send(msg)
+			if err != nil {
+				return err
+			}
 		}
 
-		msg = osc.NewMessage(c.oscPath("/ls/y"))
-		msg.Append(uint16ToFloat32(state.LeftStick[1] / 512))
-		err = oscClient.Send(msg)
-		if err != nil {
-			return err
+		// triggers
+
+		if state.LeftTrigger != prevState.LeftTrigger {
+			msg = osc.NewMessage(c.oscPath("/lt"))
+			msg.Append(uint16ToFloat32(state.LeftTrigger / 512))
+			err = oscClient.Send(msg)
+			if err != nil {
+				return err
+			}
 		}
 
-		msg = osc.NewMessage(c.oscPath("/lt"))
-		msg.Append(uint16ToFloat32(state.LeftTrigger / 512))
-		err = oscClient.Send(msg)
-		if err != nil {
-			return err
-		}
-
-		msg = osc.NewMessage(c.oscPath("/rt"))
-		msg.Append(uint16ToFloat32(state.RightTrigger / 512))
-		err = oscClient.Send(msg)
-		if err != nil {
-			return err
+		if state.RightTrigger != prevState.RightTrigger {
+			msg = osc.NewMessage(c.oscPath("/rt"))
+			msg.Append(uint16ToFloat32(state.RightTrigger / 512))
+			err = oscClient.Send(msg)
+			if err != nil {
+				return err
+			}
 		}
 
 		// dpad buttons
@@ -138,6 +150,11 @@ func (c *Client) Run() error {
 				return err
 			}
 		}
+
+		// swap pointers
+		ptr := state
+		state = prevState
+		prevState = ptr
 	}
 
 }
