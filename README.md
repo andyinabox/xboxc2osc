@@ -59,23 +59,23 @@ Input to the DPad is treated like button presses, sending `true` and then `false
 
 Joystick values are sent as floating point numbers between 0.0 and 1.0. There are composite routs that send an array of xy values, and the x and y components are broken into individual routes.
 
-- `xboxc/btn/ls` left joystick
+- `xboxc/ls` left joystick
   - _(float)_ x value
   - _(float)_ y value
-- `xboxc/btn/ls/x` _(float)_
-- `xboxc/btn/ls/y` _(float)_
-- `xboxc/btn/rs` right joystick
+- `xboxc/ls/x` _(float)_
+- `xboxc/ls/y` _(float)_
+- `xboxc/rs` right joystick
   - _(float)_ x value
   - _(float)_ y value
-- `xboxc/btn/rs/x` _(float)_
-- `xboxc/btn/rs/y` _(float)_
+- `xboxc/rs/x` _(float)_
+- `xboxc/rs/y` _(float)_
 
 ## Triggers
 
 Trigger values are sent as 0.0 - 1.0 numbers, same as with the joysticks.
 
-- `xboxc/btn/lt` _(float)_
-- `xboxc/btn/rt` _(float)_
+- `xboxc/lt` _(float)_
+- `xboxc/rt` _(float)_
 
 
 
