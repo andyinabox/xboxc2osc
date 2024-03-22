@@ -1,5 +1,5 @@
 .PHONY: build
-build: clean target/release/xboxc2osc
+build: clean target/release/xboxc2osc target/release/xboxc2midi
 
 .PHONY: run
 run: 
@@ -11,3 +11,6 @@ clean:
 
 target/release/xboxc2osc:
 	go build -o target/release/xboxc2osc ./cmd/xboxc2osc
+
+target/release/xboxc2midi:
+	go build -o target/release/xboxc2midi ./cmd/xboxc2midi

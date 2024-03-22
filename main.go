@@ -11,8 +11,13 @@ var ErrTimeout = errors.New("timeout")
 
 // EventPublisher is the destination for controller events.
 type EventPublisher interface {
-	Float(route []string, f float32) error
-	Bool(route []string, b bool) error
+	LeftStick(float32, float32) error
+	RightStick(float32, float32) error
+	LeftTrigger(float32) error
+	RightTrigger(float32) error
+	DPad(xboxc.DPadState, bool) error
+	MainButton(xboxc.MainButton, bool) error
+	SpecialButton(xboxc.SpecialButton, bool) error
 }
 
 type Relay struct {
@@ -53,90 +58,59 @@ func (r *Relay) Update() error {
 	// left joystick
 	ls, changed := state.LeftStick()
 	if changed {
-		r.publisher.Float([]string{"ls", "x"}, ls[0])
-		r.publisher.Float([]string{"ls", "y"}, ls[0])
+		err := r.publisher.LeftStick(ls[0], ls[1])
+		if err != nil {
+			return err
+		}
 	}
 
 	// right joystick
 	rs, changed := state.RightStick()
 	if changed {
-		r.publisher.Float([]string{"rs", "x"}, rs[0])
-		r.publisher.Float([]string{"rs", "y"}, rs[0])
+		err := r.publisher.RightStick(rs[0], rs[1])
+		if err != nil {
+			return err
+		}
 	}
 
 	// left trigger
 	lt, changed := state.LeftTrigger()
 	if changed {
-		r.publisher.Float([]string{"lt"}, lt)
+		err := r.publisher.LeftTrigger(lt)
+		if err != nil {
+			return err
+		}
 	}
 
 	// right trigger
 	rt, changed := state.RightTrigger()
 	if changed {
-		r.publisher.Float([]string{"rt"}, rt)
+		err := r.publisher.RightTrigger(rt)
+		if err != nil {
+			return err
+		}
 	}
-
-	// buttons
-	var btnName string
-	var found bool
 
 	// dpad
 	currentDPad, prevDPad := state.DPad()
 	if currentDPad != prevDPad {
-		if btnName, found = dpadStrMap[currentDPad]; found {
-			r.publisher.Bool([]string{"dp", btnName}, true)
-		}
-		if btnName, found = dpadStrMap[prevDPad]; found {
-			r.publisher.Bool([]string{"dp", btnName}, false)
-		}
+		r.publisher.DPad(currentDPad, true)
+		r.publisher.DPad(prevDPad, false)
 	}
 
 	// main buttons
 	currentMainBtn, prevMainBtn := state.MainButton()
 	if currentMainBtn != prevMainBtn {
-		if btnName, found = mainButtonsStrMap[currentMainBtn]; found {
-			r.publisher.Bool([]string{"btn", btnName}, true)
-		}
-		if btnName, found = mainButtonsStrMap[prevMainBtn]; found {
-			r.publisher.Bool([]string{"btn", btnName}, false)
-		}
+		r.publisher.MainButton(currentMainBtn, true)
+		r.publisher.MainButton(currentMainBtn, false)
 	}
 
 	// special buttons
 	curSpecialBtn, prevSpecialBtn := state.SpecialButton()
 	if curSpecialBtn != prevSpecialBtn {
-		if btnName, found = specialButtonsStrMap[curSpecialBtn]; found {
-			r.publisher.Bool([]string{"btn", btnName}, true)
-		}
-		if btnName, found = specialButtonsStrMap[prevSpecialBtn]; found {
-			r.publisher.Bool([]string{"btn", btnName}, false)
-		}
+		r.publisher.SpecialButton(curSpecialBtn, true)
+		r.publisher.SpecialButton(prevSpecialBtn, false)
 	}
 
 	return nil
-}
-
-var dpadStrMap = map[xboxc.DPadState]string{
-	xboxc.DPadStateN:  "n",
-	xboxc.DPadStateNE: "ne",
-	xboxc.DPadStateE:  "e",
-	xboxc.DPadStateSE: "se",
-	xboxc.DPadStateS:  "s",
-	xboxc.DPadStateSW: "sw",
-	xboxc.DPadStateW:  "w",
-	xboxc.DPadStateNW: "nw",
-}
-var mainButtonsStrMap = map[xboxc.MainButton]string{
-	xboxc.MainButtonA:  "a",
-	xboxc.MainButtonB:  "b",
-	xboxc.MainButtonX:  "x",
-	xboxc.MainButtonY:  "y",
-	xboxc.MainButtonLB: "lb",
-	xboxc.MainButtonRB: "rb",
-}
-var specialButtonsStrMap = map[xboxc.SpecialButton]string{
-	xboxc.SpecialButtonSelect:     "select",
-	xboxc.SpecialButtonStart:      "start",
-	xboxc.SpecialButtonLeftStick:  "ls",
-	xboxc.SpecialButtonRightStick: "rs",
 }
