@@ -1,8 +1,8 @@
-package xboxc2osc
+package xboxc
 
 import "encoding/binary"
 
-type ControllerState struct {
+type State struct {
 	LeftStick     [2]uint16 // [x, y]
 	RightStick    [2]uint16 // [x, y]
 	LeftTrigger   uint16
@@ -12,7 +12,7 @@ type ControllerState struct {
 	SpecialButton SpecialButton
 }
 
-func (s *ControllerState) Assign(data []byte) {
+func (s *State) Assign(data []byte) {
 	s.LeftStick[0] = binary.BigEndian.Uint16(data[1:3])
 	s.LeftStick[1] = binary.BigEndian.Uint16(data[3:5])
 	s.RightStick[0] = binary.BigEndian.Uint16(data[5:7])

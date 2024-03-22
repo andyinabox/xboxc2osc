@@ -1,4 +1,4 @@
-module github.com/andyinabox/xboxc2osc
+module github.com/andyinabox/xboxcrelay
 
 go 1.22.1
 
