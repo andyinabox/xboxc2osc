@@ -2,38 +2,17 @@ package xboxcrelay
 
 import (
 	"context"
+	"errors"
 
 	"github.com/andyinabox/xboxcrelay/pkg/xboxc"
 )
 
-var dpadStrMap = map[xboxc.DPadState]string{
-	xboxc.DPadStateN:  "n",
-	xboxc.DPadStateNE: "ne",
-	xboxc.DPadStateE:  "e",
-	xboxc.DPadStateSE: "se",
-	xboxc.DPadStateS:  "s",
-	xboxc.DPadStateSW: "sw",
-	xboxc.DPadStateW:  "w",
-	xboxc.DPadStateNW: "nw",
-}
-var mainButtonsStrMap = map[xboxc.MainButton]string{
-	xboxc.MainButtonA:  "a",
-	xboxc.MainButtonB:  "b",
-	xboxc.MainButtonX:  "x",
-	xboxc.MainButtonY:  "y",
-	xboxc.MainButtonLB: "lb",
-	xboxc.MainButtonRB: "rb",
-}
-var specialButtonsStrMap = map[xboxc.SpecialButton]string{
-	xboxc.SpecialButtonSelect:     "select",
-	xboxc.SpecialButtonStart:      "start",
-	xboxc.SpecialButtonLeftStick:  "ls",
-	xboxc.SpecialButtonRightStick: "rs",
-}
+var ErrTimeout = errors.New("timeout")
 
+// EventPublisher is the destination for controller events.
 type EventPublisher interface {
-	Float([]string, ...float32) error
-	Bool([]string, ...bool) error
+	Float(route []string, floats ...float32) error
+	Bool(route []string, floats ...bool) error
 }
 
 type Relay struct {
@@ -45,12 +24,26 @@ func New(publisher EventPublisher) *Relay {
 	return &Relay{publisher, xboxc.New()}
 }
 
-func (r *Relay) Open(ctx context.Context) error {
-	return r.controller.Open(ctx)
+func (r *Relay) Open() error {
+	return r.controller.Open()
 }
 
-func (r *Relay) Update(ctx context.Context) error {
-	err := r.controller.Update(ctx)
+func (r *Relay) WaitUntilOpen(ctx context.Context) error {
+	for {
+		select {
+		case <-ctx.Done():
+			return ErrTimeout
+		default:
+			err := r.Open()
+			if err == nil {
+				return nil
+			}
+		}
+	}
+}
+
+func (r *Relay) Update() error {
+	err := r.controller.Update()
 	if err != nil {
 		return err
 	}
@@ -123,4 +116,29 @@ func (r *Relay) Update(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+var dpadStrMap = map[xboxc.DPadState]string{
+	xboxc.DPadStateN:  "n",
+	xboxc.DPadStateNE: "ne",
+	xboxc.DPadStateE:  "e",
+	xboxc.DPadStateSE: "se",
+	xboxc.DPadStateS:  "s",
+	xboxc.DPadStateSW: "sw",
+	xboxc.DPadStateW:  "w",
+	xboxc.DPadStateNW: "nw",
+}
+var mainButtonsStrMap = map[xboxc.MainButton]string{
+	xboxc.MainButtonA:  "a",
+	xboxc.MainButtonB:  "b",
+	xboxc.MainButtonX:  "x",
+	xboxc.MainButtonY:  "y",
+	xboxc.MainButtonLB: "lb",
+	xboxc.MainButtonRB: "rb",
+}
+var specialButtonsStrMap = map[xboxc.SpecialButton]string{
+	xboxc.SpecialButtonSelect:     "select",
+	xboxc.SpecialButtonStart:      "start",
+	xboxc.SpecialButtonLeftStick:  "ls",
+	xboxc.SpecialButtonRightStick: "rs",
 }

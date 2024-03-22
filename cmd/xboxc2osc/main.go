@@ -26,13 +26,15 @@ func main() {
 	relay := xboxcrelay.New(publisher)
 
 	log.Println("Connecting...")
-	relay.Open(context.Background())
+	relay.WaitUntilOpen(context.Background())
 
 	log.Println("Starting relay...")
 	for {
-		err := relay.Update(context.Background())
+		err := relay.Update()
 		if err != nil {
-			panic(err)
+			// todo: attempt to reconnect when connection lost
+			log.Printf("Error: %v", err)
+			return
 		}
 	}
 }
