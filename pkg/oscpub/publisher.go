@@ -22,23 +22,19 @@ func New(conf *Config) *Publisher {
 	return &Publisher{conf, osc.NewClient(conf.HostDomain, conf.HostPort)}
 }
 
-func (p *Publisher) Float(route []string, floats ...float32) error {
+func (p *Publisher) Float(route []string, f float32) error {
 	r := p.path(route)
 	msg := osc.NewMessage(r)
-	for _, f := range floats {
-		msg.Append(f)
-	}
-	log.Printf("%s: %v", r, floats)
+	msg.Append(f)
+	log.Printf("%s: %f", r, f)
 	return p.client.Send(msg)
 }
 
-func (p *Publisher) Bool(route []string, bools ...bool) error {
+func (p *Publisher) Bool(route []string, b bool) error {
 	r := p.path(route)
 	msg := osc.NewMessage(r)
-	for _, b := range bools {
-		msg.Append(b)
-	}
-	log.Printf("%s: %v", r, bools)
+	msg.Append(b)
+	log.Printf("%s: %v", r, b)
 	return p.client.Send(msg)
 }
 

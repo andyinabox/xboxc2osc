@@ -11,8 +11,8 @@ var ErrTimeout = errors.New("timeout")
 
 // EventPublisher is the destination for controller events.
 type EventPublisher interface {
-	Float(route []string, floats ...float32) error
-	Bool(route []string, floats ...bool) error
+	Float(route []string, f float32) error
+	Bool(route []string, b bool) error
 }
 
 type Relay struct {
@@ -53,7 +53,6 @@ func (r *Relay) Update() error {
 	// left joystick
 	ls, changed := state.LeftStick()
 	if changed {
-		r.publisher.Float([]string{"ls"}, ls[0], ls[1])
 		r.publisher.Float([]string{"ls", "x"}, ls[0])
 		r.publisher.Float([]string{"ls", "y"}, ls[0])
 	}
@@ -61,7 +60,6 @@ func (r *Relay) Update() error {
 	// right joystick
 	rs, changed := state.RightStick()
 	if changed {
-		r.publisher.Float([]string{"rs"}, rs[0], rs[1])
 		r.publisher.Float([]string{"rs", "x"}, rs[0])
 		r.publisher.Float([]string{"rs", "y"}, rs[0])
 	}

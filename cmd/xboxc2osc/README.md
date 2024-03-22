@@ -15,6 +15,13 @@ Usage of ./xboxc2osc:
     	Osc path prefix (default "xboxc2osc")
 ```
 
+## Osculator
+
+If you want to use [Osculator](https://osculator.net/) to route the OSC messages to MIDI, there is an [example configuration file included](mapping.osc3)
+
+![Screenshot of the configuration open in Osculator](mapping.png)
+
+
 ## OSC routes
 
 By default the osc routes are prefixed with `/xboxc2osc`, you can change this by setting the `-prefix` flag.
@@ -55,26 +62,14 @@ Input to the DPad is treated like button presses, sending `true` and then `false
 
 ### Joysticks
 
-There are composite routs that send an array of xy values, and the x and y components are broken into individual routes.
-
-- `/xboxc2osc/ls` left joystick
-  - _(float)_ x value
-  - _(float)_ y value
 - `/xboxc2osc/ls/x` _(float)_
 - `/xboxc2osc/ls/y` _(float)_
-- `/xboxc2osc/rs` right joystick
-  - _(float)_ x value
-  - _(float)_ y value
 - `/xboxc2osc/rs/x` _(float)_
 - `/xboxc2osc/rs/y` _(float)_
 
 #### Triggers
 
-Trigger values are sent as 0.0 - 1.0 numbers, same as with the joysticks.
 
 - `/xboxc2osc/lt` _(float)_
 - `/xboxc2osc/rt` _(float)_
-
-
-
 
