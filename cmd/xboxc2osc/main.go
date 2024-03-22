@@ -1,41 +1,38 @@
 package main
 
 import (
+	"context"
 	"flag"
-	"strconv"
+	"log"
 
-	"github.com/andyinabox/xboxc2osc"
+	"github.com/andyinabox/xboxcrelay"
+	"github.com/andyinabox/xboxcrelay/pkg/oscpub"
 )
 
 func main() {
 
-	vidStr := flag.String("vid", "045e", "HID vendor id as hexidecimal string")
-	pidStr := flag.String("pid", "0b13", "HID product id as hexidecimal string")
 	host := flag.String("host", "127.0.0.1", "Osc reciever host")
 	port := flag.Int("port", 8000, "Osc reciever port")
-	prefix := flag.String("prefix", "xboxc", "Osc path prefix")
+	prefix := flag.String("prefix", "xboxc2osc", "Osc path prefix")
 
 	flag.Parse()
 
-	vid, err := strconv.ParseUint(*vidStr, 16, 16)
-	if err != nil {
-		panic(err)
-	}
-
-	pid, err := strconv.ParseUint(*pidStr, 16, 16)
-	if err != nil {
-		panic(err)
-	}
-
-	client := xboxc2osc.New(&xboxc2osc.Config{
-		DeviceId:       [2]uint16{uint16(vid), uint16(pid)},
-		OscHostDomain:  *host,
-		OscHostPort:    *port,
-		OscRoutePrefix: *prefix,
+	publisher := oscpub.New(&oscpub.Config{
+		HostDomain:  *host,
+		HostPort:    *port,
+		RoutePrefix: *prefix,
 	})
 
-	err = client.Run()
-	if err != nil {
-		panic(err)
+	relay := xboxcrelay.New(publisher)
+
+	log.Println("Connecting...")
+	relay.Open(context.Background())
+
+	log.Println("Starting relay...")
+	for {
+		err := relay.Update(context.Background())
+		if err != nil {
+			panic(err)
+		}
 	}
 }
