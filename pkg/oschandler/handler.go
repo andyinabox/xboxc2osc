@@ -107,7 +107,7 @@ func (h *Handler) sendUint16s(route []string, vals ...uint16) error {
 	r := h.path(route)
 	msg := osc.NewMessage(r)
 	for _, v := range vals {
-		msg.Append(util.Uint16ToFloat32(v))
+		msg.Append(util.NormalizeUint16(v))
 	}
 	return h.client.Send(msg)
 }
