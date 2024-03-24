@@ -7,9 +7,9 @@ type State struct {
 	RightStick    [2]uint16 // [x, y]
 	LeftTrigger   uint16
 	RightTrigger  uint16
-	DPad          uint8
-	MainButton    uint8
-	SpecialButton uint8
+	DPad          DPadState
+	MainButton    MainButton
+	SpecialButton SpecialButton
 }
 
 func NewState() *State {
@@ -26,7 +26,7 @@ func (s *State) Assign(data []byte) {
 	s.RightStick[1] = binary.BigEndian.Uint16(data[7:9])
 	s.LeftTrigger = binary.BigEndian.Uint16(data[9:11])
 	s.RightTrigger = binary.BigEndian.Uint16(data[11:13])
-	s.DPad = data[13]
-	s.MainButton = data[14]
-	s.SpecialButton = data[15]
+	s.DPad = DPadState(data[13])
+	s.MainButton = MainButton(data[14])
+	s.SpecialButton = SpecialButton(data[15])
 }

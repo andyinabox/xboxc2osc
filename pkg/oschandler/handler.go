@@ -2,6 +2,7 @@ package oschandler
 
 import (
 	"context"
+	"path"
 
 	"github.com/andyinabox/xboxcrelay/pkg/xboxc"
 	"github.com/hypebeast/go-osc/osc"
@@ -53,4 +54,59 @@ func (h *Handler) HandleInput(ctx context.Context, state *xboxc.State) error {
 	if h.prev.SpecialButton != state.SpecialButton {
 
 	}
+
+	return nil
+}
+
+func (h *Handler) uint16(route []string, vals ...uint16) error {
+	r := h.path(route)
+	msg := osc.NewMessage(r)
+	for _, v := range vals {
+		msg.Append(v)
+	}
+	return h.client.Send(msg)
+}
+
+func (h *Handler) bool(route []string, vals ...bool) error {
+	r := h.path(route)
+	msg := osc.NewMessage(r)
+	for _, v := range vals {
+		msg.Append(v)
+	}
+	return h.client.Send(msg)
+}
+
+func (h *Handler) path(s []string) string {
+	args := []string{"/", p.conf.RoutePrefix}
+	args = append(args, s...)
+	return path.Join(args...)
+}
+
+// func uint16ToFloat(n uint16) float32 {
+// 	return
+// }
+
+var dpadStrMap = map[xboxc.DPadState]string{
+	xboxc.DPadStateN:  "n",
+	xboxc.DPadStateNE: "ne",
+	xboxc.DPadStateE:  "e",
+	xboxc.DPadStateSE: "se",
+	xboxc.DPadStateS:  "s",
+	xboxc.DPadStateSW: "sw",
+	xboxc.DPadStateW:  "w",
+	xboxc.DPadStateNW: "nw",
+}
+var mainButtonsStrMap = map[xboxc.MainButton]string{
+	xboxc.MainButtonA:  "a",
+	xboxc.MainButtonB:  "b",
+	xboxc.MainButtonX:  "x",
+	xboxc.MainButtonY:  "y",
+	xboxc.MainButtonLB: "lb",
+	xboxc.MainButtonRB: "rb",
+}
+var specialButtonsStrMap = map[xboxc.SpecialButton]string{
+	xboxc.SpecialButtonSelect:     "select",
+	xboxc.SpecialButtonStart:      "start",
+	xboxc.SpecialButtonLeftStick:  "ls",
+	xboxc.SpecialButtonRightStick: "rs",
 }
