@@ -1,4 +1,4 @@
-package xboxcrelay
+package xboxc
 
 type DPadState uint8
 
