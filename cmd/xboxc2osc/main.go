@@ -1,31 +1,42 @@
 package main
 
+import (
+	"context"
+
+	"github.com/andyinabox/xboxcrelay"
+	"github.com/andyinabox/xboxcrelay/pkg/loghandler"
+	"github.com/andyinabox/xboxcrelay/pkg/oschandler"
+	"github.com/andyinabox/xboxcrelay/pkg/util"
+)
+
 func main() {
+	interrupt := util.SignalInterruptChannel()
 
-	// host := flag.String("host", "127.0.0.1", "Osc reciever host")
-	// port := flag.Int("port", 8000, "Osc reciever port")
-	// prefix := flag.String("prefix", "xboxc2osc", "Osc path prefix")
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
-	// flag.Parse()
+	logger := loghandler.New(&loghandler.Config{
+		MinWidth: 8,
+		TabWidth: 0,
+		Padding:  1,
+		Padchar:  ' ',
+		Flags:    0,
+	})
 
-	// publisher := oscpub.New(&oscpub.Config{
-	// 	HostDomain:  *host,
-	// 	HostPort:    *port,
-	// 	RoutePrefix: *prefix,
-	// })
+	osc := oschandler.New(&oschandler.Config{
+		HostDomain:  "127.0.0.1",
+		HostPort:    8000,
+		RoutePrefix: "xboxcrelay",
+	})
 
-	// relay := xboxcrelay.New(publisher)
+	relay := xboxcrelay.New(logger, osc)
 
-	// log.Println("Connecting...")
-	// relay.WaitUntilOpen(context.Background())
+	go func() {
+		err := relay.Start(ctx)
+		if err != nil {
+			panic(err)
+		}
+	}()
 
-	// log.Println("Starting relay...")
-	// for {
-	// 	err := relay.Update()
-	// 	if err != nil {
-	// 		// todo: attempt to reconnect when connection lost
-	// 		log.Printf("Error: %v", err)
-	// 		return
-	// 	}
-	// }
+	<-interrupt // wait for interrupt
 }
