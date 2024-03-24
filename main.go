@@ -143,7 +143,6 @@ func delegate(ctx context.Context, errStream chan<- error, stateStream <-chan *x
 			case <-ctx.Done():
 				return
 			case state := <-stateStream:
-				fmt.Println("Delegate streams")
 				for _, stream := range handlerStreams {
 					stream <- state
 				}
@@ -152,49 +151,3 @@ func delegate(ctx context.Context, errStream chan<- error, stateStream <-chan *x
 	}()
 
 }
-
-// var ErrDisconnected = errors.New("disconnected")
-
-// EventPublisher is the destination for controller events.
-
-// type State interface {
-// 	RightStick() (xy [2]float32, changed bool)
-// 	LeftStick() (xy [2]float32, changed bool)
-// 	RightTrigger() (v float32, changed bool)
-// 	LeftTrigger() (v float32, changed bool)
-// 	DPad() (current DPadState, previous DPadState)
-// 	MainButton() (current MainButton, previous MainButton)
-// 	SpecialButton() (current SpecialButton, pervious SpecialButton)
-// }
-
-// type InputHandler interface {
-// 	HandleInput(context.Context, chan<- State, <-chan error)
-// }
-
-// type Relay struct {
-// 	client   *Client
-// 	handlers []InputHandler
-// }
-
-// func New(handlers ...InputHandler) *Relay {
-// 	return &Relay{NewClient(), handlers}
-// }
-
-// func (r *Relay) Open() error {
-// 	return r.client.Open()
-// }
-
-// func (r *Relay) Close() error {
-// 	return r.client.Close()
-// }
-
-// func (r *Relay) Update(ctx context.Context) error {
-// 	// err := r.client.Update()
-// 	// for _, e := range r.emitters {
-// 	// 	err := e.Emit(ctx, r.client)
-// 	// 	if err != nil {
-// 	// 		return err
-// 	// 	}
-// 	// }
-// 	// return nil
-// }
